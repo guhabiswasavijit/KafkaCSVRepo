@@ -3,6 +3,7 @@ package org.seven;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
 import org.springframework.stereotype.Repository;
 
 @Repository

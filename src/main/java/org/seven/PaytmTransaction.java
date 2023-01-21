@@ -2,8 +2,10 @@ package org.seven;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @CsvRecord(separator = ",", crlf=",\\n")
 public class PaytmTransaction implements Serializable{
 	private static final long serialVersionUID = 1L;
-	@DataField(pos = 1, pattern = "DD/MM/YYYY HH24:MI:SS")
+	@DataField(pos = 1, pattern = "dd/MM/yyyy hh:mm:ss",trim = true)
 	private Date txDate;
 	@DataField(pos = 2)
 	private String activity;
