@@ -3,6 +3,7 @@ package org.seven;
 import org.apache.camel.ExchangePropertyKey;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
+import org.apache.camel.impl.converter.CoreTypeConverterRegistry;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,15 @@ public class CamelKafkaRoute extends RouteBuilder {
 	
 	public void configure() throws Exception {                
         log.info("About to start route: Kafka Server -> Log ");
+        onException(IllegalArgumentException.class)
+        .handled(true)
+        .to("bean:mySqlDBHandler?method=logBadRecords");
+
         BindyCsvDataFormat bindy = new BindyCsvDataFormat(PaytmTransaction.class);
-        this.getContext().getTypeConverterRegistry().addTypeConverter(PaytmTransaction.class,ProducerRecord.class,paytmKafkaRecord);
+        CoreTypeConverterRegistry typeConverterRegistry = (CoreTypeConverterRegistry) this.getContext().getTypeConverterRegistry();
+        typeConverterRegistry.addTypeConverter(ProducerRecord.class,PaytmTransaction.class,paytmKafkaRecord);
+        PaytmKafkaRecord typeConverter = (PaytmKafkaRecord)typeConverterRegistry.lookup(ProducerRecord.class,PaytmTransaction.class);
+        log.debug("got type converter {}",typeConverter);
         from("direct:split")
 	 	  .routeId("kafkaProducerRecordRoute")
 		  .log("Split line ${body}")
@@ -28,10 +36,7 @@ public class CamelKafkaRoute extends RouteBuilder {
 		   	.when(simple("${exchangeProperty.CamelSplitIndex} != 0"))
 		   	    .unmarshal(bindy)
 		   	    .convertBodyTo(ProducerRecord.class)
-		   		.to("kafka:{{paytm.topic}}?brokers={{kafka.host}}:{{kafka.port}}"
-	                + "&keySerializer="+ org.apache.kafka.common.serialization.StringSerializer.class.getName() 
-	                + "&valueSerializer="+ org.seven.ObjectSerializer.class.getName() 
-	               )		   	  
+		   		.to("kafka:{{paytm.topic}}?brokers={{kafka.host}}:{{kafka.port}}")		   	  
 				.log("Finished Transformation:"+body())
 		   	.otherwise().log("Got body:"+body())
 		  .endChoice()			  

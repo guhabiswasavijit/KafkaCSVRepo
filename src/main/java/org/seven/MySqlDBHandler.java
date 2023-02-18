@@ -19,4 +19,8 @@ public class MySqlDBHandler {
         auditRepository.logAudit(auditLog);
         log.debug("successfully created audit record:{}",fileProcessed);
 	}
+	public void logBadRecords(Exchange exchange) {
+		String badRecord = exchange.getIn().getBody(String.class);
+		log.debug("erroring record:{}",badRecord);
+	}
 }
