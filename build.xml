@@ -7,6 +7,7 @@
 	<property name="spring-boot.jar" value="${build.dir}/AvroKafka.jar" />
 	<path id="project.classpath">
 	        <fileset dir="${camelRepository}">
+	        	<include name="spring-jdbc-5.3.9.jar"/>
 	        	<include name="assertj-core-3.20.2.jar"/>
 	        	<include name="camel-api-3.11.1.jar"/>
 	        	<include name="camel-base-3.11.1.jar"/>
@@ -176,7 +177,7 @@
 		</javac>
 	</target>
     <target name="create_run_jar" depends="compile" unless="skip.jar">
-	    <spring-boot:exejar destfile="${spring-boot.jar}" classes="${build.dir}/classes" start-class="org.seven.telecom.DroolsDemoApplication">
+	    <spring-boot:exejar destfile="${spring-boot.jar}" classes="${build.dir}/classes" start-class="org.seven.KafkaApplication">
 	  		<resources>
 	  			<fileset dir="src/main/resources" />
 	  		</resources>

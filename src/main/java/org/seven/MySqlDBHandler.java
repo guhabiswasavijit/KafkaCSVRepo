@@ -1,6 +1,9 @@
 package org.seven;
 
+import java.sql.SQLException;
+
 import org.apache.camel.Exchange;
+import org.seven.model.AuditLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,11 @@ public class MySqlDBHandler {
 		log.debug("successfully processed file:{}",fileProcessed);
         AuditLog auditLog = new AuditLog();
         auditLog.setFileProcessed(fileProcessed);
-        auditRepository.logAudit(auditLog);
+        try {
+			auditRepository.logAudit(auditLog);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
         log.debug("successfully created audit record:{}",fileProcessed);
 	}
 	public void logBadRecords(Exchange exchange) {
